@@ -4,7 +4,9 @@ import { sql } from "@vercel/postgres";
 
 //更新发票路由中显示的数据，因此需要清除此缓存并触发对服务器的新请求
 import { revalidatePath } from "next/cache";
+
 import { redirect } from "next/navigation";
+import { signIn } from "@/auth";
 
 const InvoiceSchema = z.object({
   id: z.string(),
@@ -47,7 +49,6 @@ export async function createInvoice(prevState: State, formData: FormData) {
     };
   }
 
-  // Prepare data for insertion into the database
   const { customerId, amount, status } = validatedFields.data;
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split("T")[0];
@@ -111,5 +112,22 @@ export async function deleteInvoice(id: string) {
     return { message: "Deleted Invoice." };
   } catch (error) {
     return { message: "Database Error: Failed to Delete Invoice." };
+  }
+}
+
+//登录
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData
+) {
+  try {
+    await signIn("credentials", Object.fromEntries(formData));
+    redirect("/");
+  } catch (error) {
+    if ((error as Error).message.includes("CredentialsSignin")) {
+      return "CredentialSignin";
+    }
+    throw error;
+  } finally {
   }
 }
