@@ -70,6 +70,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
 }
+
 export async function updateInvoice(
   id: string,
   prevState: State,
@@ -122,12 +123,10 @@ export async function authenticate(
 ) {
   try {
     await signIn("credentials", Object.fromEntries(formData));
-    redirect("/");
   } catch (error) {
     if ((error as Error).message.includes("CredentialsSignin")) {
       return "CredentialSignin";
     }
     throw error;
-  } finally {
   }
 }
